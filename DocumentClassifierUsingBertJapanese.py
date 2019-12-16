@@ -187,19 +187,20 @@ class DocumentClassifier:
             # 3. 識別器を勾配計算ありに変更
             for name, param in self.net.classifier.named_parameters():
                 param.requires_grad = True
+            # 最適化手法の設定
+            # BERTの元の部分はファインチューニング
+            optimizer = optim.Adam([
+                {'params': self.net.bert.encoder.layer[-1].parameters(), 'lr': 5e-5},
+                {'params': self.net.classifier.parameters(), 'lr': 5e-5}
+            ], betas=(0.9, 0.999))
         elif fine_tuning_type == 'full':
             for name, param in self.net.named_parameters():
                 param.requires_grad = True
+            # optimの設定
+            optimizer = optim.Adam(self.net.named_parameters(), lr=5e-5, betas=(0.9, 0.999))
         else:
             logger.error('please input fine_tuning_type "fast" or "full"')
             raise ValueError
-
-        # 最適化手法の設定
-        # BERTの元の部分はファインチューニング
-        optimizer = optim.Adam([
-            {'params': self.net.bert.encoder.layer[-1].parameters(), 'lr': 5e-5},
-            {'params': self.net.classifier.parameters(), 'lr': 5e-5}
-        ], betas=(0.9, 0.999))
 
         # 損失関数の設定
         criterion = nn.CrossEntropyLoss()
