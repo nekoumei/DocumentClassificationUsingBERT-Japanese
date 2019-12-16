@@ -197,7 +197,7 @@ class DocumentClassifier:
             for name, param in self.net.named_parameters():
                 param.requires_grad = True
             # optimの設定
-            optimizer = optim.Adam(self.net.named_parameters(), lr=5e-5, betas=(0.9, 0.999))
+            optimizer = optim.Adam(self.net.parameters(), lr=5e-5, betas=(0.9, 0.999))
         else:
             logger.error('please input fine_tuning_type "fast" or "full"')
             raise ValueError
